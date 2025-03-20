@@ -48,7 +48,6 @@ final class MovieQuizViewController: UIViewController {
       let buttonText: String
     }
     
-    
     private var currentQuestionIndex = 0
  
     private var correctAnswers = 0
@@ -125,41 +124,47 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showNextQuestionOrResults() {
-      if currentQuestionIndex == questions.count - 1 {
-          
-          let alert = UIAlertController(
-              title: "Этот раунд окончен!",
-              message: "Ваш результат \(correctAnswers)/\(questions.count)",
-              preferredStyle: .alert)
-          
-          let action = UIAlertAction(title: "Сыграть ещё раз", style: .default) { [self]_ in
-              self.currentQuestionIndex = 0
-              self.correctAnswers = 0
-              let firstQuestion = questions[self.currentQuestionIndex]
-              let viewModel = self.convert(model: firstQuestion)
-              show(quiz: viewModel)
-
-          }
-          alert.addAction(action)
-          self.present(alert, animated: true, completion: nil)
-          
-      } else {
-        currentQuestionIndex += 1
-      }
-    
-        let nextQuestion = questions[currentQuestionIndex]
-        let viewModel = convert(model: nextQuestion)
-        show(quiz: viewModel)
-        
+        if currentQuestionIndex == questions.count - 1 {
+            let text = "Ваш результат: \(correctAnswers)/10" // 1
+            let viewModel = QuizResultsViewModel( // 2
+                title: "Этот раунд окончен!",
+                text: text,
+                buttonText: "Сыграть ещё раз")
+            show(quiz: viewModel) // 3
+        } else {
+            currentQuestionIndex += 1
+            let nextQuestion = questions[currentQuestionIndex]
+            let viewModel = convert(model: nextQuestion)
+            
+            show(quiz: viewModel)
+        }
     }
     
-    
+    private func show(quiz result: QuizResultsViewModel) {
+        let alert = UIAlertController(
+            title: result.title,
+            message: result.text,
+            preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            let firstQuestion = self.questions[self.currentQuestionIndex]
+            let viewModel = self.convert(model: firstQuestion)
+            self.show(quiz: viewModel)
+        }
+        
+        alert.addAction(action)
+        
+        self.present(alert, animated: true, completion: nil)
+    }
 
 
 }
 
-
 /*
+ Вариант чуть проще:
  1. Делаем структуру вопроса (Картинка, вопрос, правильность вопроса (bool))
  2. Делаем структуру элементов на экране (Картинка, вопрос, номер вопроса)
  3. Делаем массив вопросов с типом п.1
@@ -168,15 +173,10 @@ final class MovieQuizViewController: UIViewController {
  6. Делаем функцию конвертирующую конкретный элемент массива в UI
  7. Присваиваем новый конвертированный UI к аутлетам
  8. Функция, которая либо переходит к след. вопросу, либо показывает результат.
- Если вопрос не последний, то переходим к следующему вопросу.
- Если количество вопросов меньше либо равно
- Тут нужно будет прибавить к индексу элемента +1.
- Если вопрос последий, то показываем результат.
- Тут мы выводим viewmodel результата квиза.
- 
- 
- 
- 
+ 8.1 Если вопрос не последний, то переходим к следующему вопросу.
+ 8.2 Если вопрос последний, то показываем результат в виде алерта.
+ 8.3 Тут мы выводим viewmodel результата квиза.
+
  
  */
 
