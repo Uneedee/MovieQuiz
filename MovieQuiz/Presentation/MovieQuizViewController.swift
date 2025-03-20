@@ -179,6 +179,7 @@ final class MovieQuizViewController: UIViewController {
  8.2 Если вопрос последний, то показываем результат в виде алерта.
  8.3 Тут мы выводим viewmodel результата квиза.
  
+  
  
  */
 
