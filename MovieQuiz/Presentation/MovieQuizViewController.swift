@@ -1,61 +1,14 @@
 import UIKit
 final class MovieQuizViewController: UIViewController {
-    // MARK: - Lifecycle
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        let currentQuestion = questions[currentQuestionIndex]
-        let quizStepViewModel = convert(model: currentQuestion)
-        show(quiz: quizStepViewModel)
-        
-    }
-    @IBAction private func noButtonClicked(_ sender: UIButton) {
-        let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = false
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer )
-        
-    }
     
-    @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = true
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer )
-    }
-    
+    // MARK: - Константы, переменные (включая @IBOutlet, @published и др).
     @IBOutlet private weak var imageView: UIImageView!
-    
-    
     @IBOutlet private weak var textLabel: UILabel!
-    
-    
     @IBOutlet private weak var counterLabel: UILabel!
-    
-    
     @IBOutlet weak var yesButton: UIButton!
-    
-    
     @IBOutlet weak var noButton: UIButton!
     
-    
-    private struct QuizQuestion {
-        let image: String
-        let text: String
-        let correctAnswer: Bool
-    }
-    
-    private struct QuizStepViewModel {
-        let image: UIImage
-        let question: String
-        let questionNumber: String
-    }
-    
-    private struct QuizResultsViewModel {
-        let title: String
-        let text: String
-        let buttonText: String
-    }
-    
     private var currentQuestionIndex = 0
-    
     private var correctAnswers = 0
     
     private let questions: [QuizQuestion] = [
@@ -100,6 +53,32 @@ final class MovieQuizViewController: UIViewController {
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: false)
     ]
+    
+    // MARK: - Жизненный цикл
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        let currentQuestion = questions[currentQuestionIndex]
+        let quizStepViewModel = convert(model: currentQuestion)
+        show(quiz: quizStepViewModel)
+        
+    }
+    
+    // MARK: - Обработчики действий
+    
+    @IBAction private func noButtonClicked(_ sender: UIButton) {
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = false
+        showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer )
+    }
+    
+    @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = true
+        showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer )
+    }
+    
+    // MARK: - Приватные вспомогательные методы
     
     private func show(quiz step: QuizStepViewModel) {
         imageView.layer.borderWidth = 0
@@ -173,5 +152,25 @@ final class MovieQuizViewController: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    // MARK: - Вложенные структуры
+    private struct QuizQuestion {
+        let image: String
+        let text: String
+        let correctAnswer: Bool
+    }
     
+    private struct QuizStepViewModel {
+        let image: UIImage
+        let question: String
+        let questionNumber: String
+    }
+    
+    private struct QuizResultsViewModel {
+        let title: String
+        let text: String
+        let buttonText: String
+    }
 }
+
+
+
