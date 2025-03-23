@@ -1,5 +1,4 @@
 import UIKit
-
 final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -13,6 +12,7 @@ final class MovieQuizViewController: UIViewController {
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = false
         showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer )
+        
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
@@ -28,6 +28,12 @@ final class MovieQuizViewController: UIViewController {
     
     
     @IBOutlet private weak var counterLabel: UILabel!
+    
+    
+    @IBOutlet weak var yesButton: UIButton!
+    
+    
+    @IBOutlet weak var noButton: UIButton!
     
     
     private struct QuizQuestion {
@@ -101,6 +107,8 @@ final class MovieQuizViewController: UIViewController {
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
     }
     
     private func showAnswerResult(isCorrect: Bool) {
@@ -113,10 +121,12 @@ final class MovieQuizViewController: UIViewController {
             correctAnswers += 1
         }
         
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.showNextQuestionOrResults()
         }
-        
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -140,6 +150,7 @@ final class MovieQuizViewController: UIViewController {
             
             show(quiz: viewModel)
         }
+        
     }
     
     private func show(quiz result: QuizResultsViewModel) {
@@ -164,26 +175,3 @@ final class MovieQuizViewController: UIViewController {
     
     
 }
-
-/*
- 
- 1. Делаем структуру вопроса (Картинка, вопрос, правильность вопроса (bool))
- 2. Делаем структуру элементов на экране (Картинка, вопрос, номер вопроса)
- 3. Делаем массив вопросов с типом п.1
- 4. Делаем свойство хранящее индекс элемента
- 5. Делаем свойство хранящее количество верных ответов
- 6. Делаем функцию конвертирующую конкретный элемент массива в UI
- 7. Присваиваем новый конвертированный UI к аутлетам
- 8. Функция, которая либо переходит к след. вопросу, либо показывает результат.
- 8.1 Если вопрос не последний, то переходим к следующему вопросу.
- 8.2 Если вопрос последний, то показываем результат в виде алерта.
- 8.3 Тут мы выводим viewmodel результата квиза.
- 
-  
- 
- */
-
-
-
-
-
