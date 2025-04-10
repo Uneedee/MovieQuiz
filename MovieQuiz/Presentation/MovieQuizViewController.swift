@@ -24,7 +24,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         self.questionFactory = questionFactory
         questionFactory.requestNextQuestion()
         let presenter = AlertPresenter()
-                presenter.viewController = self
+        presenter.viewController = self
         alertPresenterDelegate = presenter
     }
     
