@@ -14,6 +14,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var alertPresenterDelegate: AlertPresenter?
+    private var statisticService: StatisticServiceProtocol?
+    private var currentDate = Date()
     
     // MARK: - Жизненный цикл
     
@@ -26,6 +28,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let presenter = AlertPresenter()
         presenter.viewController = self
         alertPresenterDelegate = presenter
+        statisticService = StatisticService()
     }
     
     // MARK: - Обработчики действий
@@ -94,10 +97,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showNextQuestionOrResults() {
+        
+        
         if currentQuestionIndex == questionsAmount - 1 {
-            let text = correctAnswers == questionsAmount ?
-                    "Поздравляем, вы ответили на 10 из 10!" :
-                    "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
+            statisticService?.store(correct: correctAnswers, total: questionsAmount)
+            let text = correctAnswers == questionsAmount ? "Поздравляем, вы ответили на 10 из 10!" :
+            
+            "Ваш результат \(correctAnswers)/\(questionsAmount)\n Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0) \n Рекорд: \(statisticService?.bestGame.correct ?? 0)/\(statisticService?.bestGame.total ?? 0) (\(statisticService?.bestGame.date.dateTimeString ?? Date().dateTimeString)) \n Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? 0))"
+            
             let viewModel = AlertModel(
                 title: "Этот раунд окончен!",
                 message: text,
@@ -108,6 +115,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                     self.correctAnswers = 0
                     self.questionFactory?.requestNextQuestion()
                 } )
+            
             alertPresenterDelegate?.show(model: viewModel)
         } else {
             currentQuestionIndex += 1

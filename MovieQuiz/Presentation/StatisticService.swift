@@ -30,12 +30,15 @@ class StatisticService: StatisticServiceProtocol {
         get { let correctAnswers = storage.integer(forKey: Keys.correct.rawValue)
             let gamesCount = storage.integer(forKey: Keys.gamesCount.rawValue)
             if gamesCount  > 0 {
-                return (Double(correctAnswers)  / (Double(gamesCount) * 10) ) * 100 }
-            else { return Double(gamesCount) }
-        }
+                return Double(correctAnswers)  / (Double(gamesCount) * 10 ) * 100 }
+            else { return 0 }
+        } }
         
         func store(correct count: Int, total amount: Int) {
-            
+            gamesCount += 1
+            let newResult = GameResult(correct: count, total: amount, date: Date())
+            if newResult.correct > bestGame.correct {
+                bestGame = newResult
+            }
         }
     }
-}
