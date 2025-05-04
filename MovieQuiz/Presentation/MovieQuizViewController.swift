@@ -64,6 +64,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             }
         }
     
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
+    
     private func show(quiz step: QuizStepViewModel) {
         imageView.layer.borderWidth = 0
         imageView.layer.borderColor = nil
@@ -128,14 +137,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
     }
     
-    func didLoadDataFromServer() {
-        activityIndicator.isHidden = true // скрываем индикатор загрузки
-        questionFactory?.requestNextQuestion()
-    }
 
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription) // возьмём в качестве сообщения описание ошибки
-    }
     
     private func showNextQuestionOrResults() {
         
