@@ -1,5 +1,5 @@
 import UIKit
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController {
     
     // MARK: - Константы, переменные (включая @IBOutlet, @published и др).
     @IBOutlet private weak var imageView: UIImageView!
@@ -7,13 +7,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet weak var noButton: UIButton!
-    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
-    
-    private var correctAnswers = 0
-    private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
-    private var alertPresenterDelegate: AlertPresenter?
-    private var statisticService: StatisticServiceProtocol?
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
     private var currentDate = Date()
     private let presenter = MovieQuizPresenter()
     
@@ -23,53 +17,32 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         super.viewDidLoad()
         presenter.viewController = self
         imageView.layer.cornerRadius = 20
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        statisticService = StatisticService()
+        presenter.questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: presenter )
+        presenter.statisticService = StatisticService()
         showLoadingIndicator()
-        questionFactory?.loadData()
+        presenter.questionFactory?.loadData()
         let presenter = AlertPresenter()
         presenter.viewController = self
-        alertPresenterDelegate = presenter
-        statisticService = StatisticService()
+        self.presenter.alertPresenterDelegate = presenter
+        self.presenter.statisticService = StatisticService()
     }
     
     // MARK: - Обработчики действий
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         presenter.noButtonClicked()
-        presenter.currentQuestion = currentQuestion
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         presenter.yesButtonClicked()
-        presenter.currentQuestion = currentQuestion
     }
     
     // MARK: - Приватные вспомогательные методы
     
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-            guard let question = question else {
-                return
-            }
-            
-            currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-            
-            DispatchQueue.main.async { [weak self] in
-                self?.show(quiz: viewModel)
-            }
-        }
     
-    func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
-        questionFactory?.requestNextQuestion()
-    }
 
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
-    }
     
-    private func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepViewModel) {
         imageView.layer.borderWidth = 0
         imageView.layer.borderColor = nil
         imageView.image = step.image
@@ -86,30 +59,31 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.borderColor = isCorrect ? UIColor(named: "Green")?.cgColor : UIColor(named: "Red")?.cgColor
         
         if isCorrect == true {
-            correctAnswers += 1
+            presenter.didAnswer(isCorrectAnswer: isCorrect)
         }
         
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.showNextQuestionOrResults()
+            self.presenter.showNextQuestionOrResults()
         }
         yesButton.isEnabled = false
         noButton.isEnabled = false
     }
     
     
-    private func showLoadingIndicator() {
+    func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
     
-    private func hideLoadingIndicator() {
+    func hideLoadingIndicator() {
         activityIndicator.isHidden =  true
         activityIndicator.stopAnimating()
     }
     
+
     
-    private func showNetworkError(message: String) {
+    func showNetworkError(message: String) {
         hideLoadingIndicator()
         
         let model = AlertModel(
@@ -118,44 +92,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             buttonText: "Попробовать ещё раз",
             completion: { [weak self] in
                 guard let self = self else { return }
-                self.presenter.resetQuestionIndex()
-                self.correctAnswers = 0
-                self.questionFactory?.requestNextQuestion()
+                self.presenter.restartGame()
             } )
         
-        alertPresenterDelegate?.show(model: model)
+        presenter.alertPresenterDelegate?.show(model: model)
         
     }
     
 
     
-    private func showNextQuestionOrResults() {
-        
-        
-        if presenter.isLastQuestion() {
-            statisticService?.store(correct: correctAnswers, total: presenter.questionsAmount)
-            let text = correctAnswers == presenter.questionsAmount ? "Поздравляем, вы ответили на 10 из 10!" :
-            
-            "Ваш результат \(correctAnswers)/\(presenter.questionsAmount)\n Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0) \n Рекорд: \(statisticService?.bestGame.correct ?? 0)/\(statisticService?.bestGame.total ?? 0) (\(statisticService?.bestGame.date.dateTimeString ?? Date().dateTimeString)) \n Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? 0))"
-            
-            let viewModel = AlertModel(
-                title: "Этот раунд окончен!",
-                message: text,
-                buttonText: "Сыграть ещё раз",
-                completion: { [weak self] in
-                    guard let self = self else { return }
-                    self.presenter.resetQuestionIndex()
-                    self.correctAnswers = 0
-                    self.questionFactory?.requestNextQuestion()
-                } )
-            
-            alertPresenterDelegate?.show(model: viewModel)
-        } else {
-            presenter.switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-        }
-        
-    }
+
     
     // MARK: - Вложенные структуры
 
