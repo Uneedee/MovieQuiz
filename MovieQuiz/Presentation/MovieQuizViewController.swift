@@ -1,13 +1,14 @@
 import UIKit
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     
     // MARK: - Константы, переменные (включая @IBOutlet, @published и др).
-    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet weak var imageView: UIImageView!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet weak var noButton: UIButton!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    
     private var currentDate = Date()
     private let presenter = MovieQuizPresenter()
     
@@ -37,10 +38,14 @@ final class MovieQuizViewController: UIViewController {
         presenter.yesButtonClicked()
     }
     
-    // MARK: - Приватные вспомогательные методы
+    // MARK: - Приватные функции
     
-    
-
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.cornerRadius = 20
+        imageView.layer.borderColor = isCorrectAnswer ? UIColor(named: "Green")?.cgColor : UIColor(named: "Red")?.cgColor
+    }
     
     func show(quiz step: QuizStepViewModel) {
         imageView.layer.borderWidth = 0
@@ -51,26 +56,7 @@ final class MovieQuizViewController: UIViewController {
         yesButton.isEnabled = true
         noButton.isEnabled = true
     }
-    
-    func showAnswerResult(isCorrect: Bool) {
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.cornerRadius = 20
-        imageView.layer.borderColor = isCorrect ? UIColor(named: "Green")?.cgColor : UIColor(named: "Red")?.cgColor
         
-        if isCorrect == true {
-            presenter.didAnswer(isCorrectAnswer: isCorrect)
-        }
-        
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.presenter.showNextQuestionOrResults()
-        }
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
-    }
-    
-    
     func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
@@ -80,8 +66,6 @@ final class MovieQuizViewController: UIViewController {
         activityIndicator.isHidden =  true
         activityIndicator.stopAnimating()
     }
-    
-
     
     func showNetworkError(message: String) {
         hideLoadingIndicator()
@@ -98,17 +82,6 @@ final class MovieQuizViewController: UIViewController {
         presenter.alertPresenterDelegate?.show(model: model)
         
     }
-    
-
-    
-
-    
-    // MARK: - Вложенные структуры
-
-    
-
-    
-    
 }
 
 
