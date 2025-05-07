@@ -56,7 +56,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         yesButton.isEnabled = true
         noButton.isEnabled = true
     }
-        
+    
     func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
@@ -81,6 +81,11 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         
         presenter.alertPresenterDelegate?.show(model: model)
         
+    }
+    
+    func buttonsDisabled() {
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
     }
 }
 

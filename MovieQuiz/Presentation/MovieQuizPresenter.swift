@@ -3,16 +3,14 @@ import UIKit
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     var statisticService: StatisticServiceProtocol?
     var questionFactory: QuestionFactoryProtocol?
-    weak var viewController: MovieQuizViewController?
+    weak var viewController: (MovieQuizViewControllerProtocol)?
     var alertPresenterDelegate: AlertPresenter?
     
     private var currentQuestion: QuizQuestion?
     private let questionsAmount: Int = 10
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
-    
-    
-    
+ 
     
     func noButtonClicked() {
         didAnswer(isYes: false)
@@ -23,30 +21,30 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func didLoadDataFromServer() {
-        viewController?.activityIndicator.isHidden = true
+        viewController?.hideLoadingIndicator()
         questionFactory?.requestNextQuestion()
     }
-
+    
     func didFailToLoadData(with error: Error) {
         viewController?.showNetworkError(message: error.localizedDescription)
     }
     
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
-            guard let question = question else {
-                return
-            }
-            
-            currentQuestion = question
-        let viewModel = convert(model: question)
-            
-            DispatchQueue.main.async { [weak self] in
-                self?.viewController?.show(quiz: viewModel)
-            }
+        guard let question = question else {
+            return
         }
+        
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.viewController?.show(quiz: viewModel)
+        }
+    }
     
     func proceedWithAnswer(isCorrect: Bool) {
-       
+        
         viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
         
         if isCorrect == true {
@@ -57,12 +55,11 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.proceedToNextQuestionOrResults()
         }
-        viewController?.yesButton.isEnabled = false
-        viewController?.noButton.isEnabled = false
+        viewController?.buttonsDisabled()
+        
     }
     
     func proceedToNextQuestionOrResults() {
-        
         
         if self.isLastQuestion() {
             statisticService?.store(correct: correctAnswers, total: questionsAmount)
@@ -111,16 +108,16 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func isLastQuestion() -> Bool {
-           currentQuestionIndex == questionsAmount - 1
-       }
-       
+        currentQuestionIndex == questionsAmount - 1
+    }
+    
     func restartGame() {
-           currentQuestionIndex = 0
-           correctAnswers = 0
-           questionFactory?.requestNextQuestion()
-       }
-       
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory?.requestNextQuestion()
+    }
+    
     func switchToNextQuestion() {
-           currentQuestionIndex += 1
-       }
+        currentQuestionIndex += 1
+    }
 }

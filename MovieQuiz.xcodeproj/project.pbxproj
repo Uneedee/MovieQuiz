@@ -188,14 +188,14 @@
 		6113423A2B701CF8003FC2A4 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				24F04D142DCA333F00FCB9AF /* MovieQuizViewControllerProtocol.swift */,
-				247224162DBA55F50086393F /* NetworkClient.swift */,
 				24AA83832DA006E8000FDA38 /* AlertPresenterDelegate.swift */,
 				24AA83772D9F0806000FDA38 /* QuestionFactoryDelegate.swift */,
+				24AA83752D9DD68B000FDA38 /* QuestionFactoryProtocol.swift */,
+				24F04D142DCA333F00FCB9AF /* MovieQuizViewControllerProtocol.swift */,
+				24AA83E82DA7BD43000FDA38 /* StatisticServiceProtocol.swift */,
+				247224162DBA55F50086393F /* NetworkClient.swift */,
 				24AA836A2D9C4966000FDA38 /* QuestionFactory.swift */,
 				2472241A2DBA58A60086393F /* MoviesLoader.swift */,
-				24AA83752D9DD68B000FDA38 /* QuestionFactoryProtocol.swift */,
-				24AA83E82DA7BD43000FDA38 /* StatisticServiceProtocol.swift */,
 				24AA83EC2DA7BF4C000FDA38 /* StatisticService.swift */,
 			);
 			path = Services;
